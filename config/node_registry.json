@@ -1,0 +1,15 @@
+{
+  "keywords": [
+    { "keyword": "google sheets", "target": { "type": "n8n-nodes-base.googleSheets", "name": "Google Sheets", "defaults": { "parameters": { "operation": "append" } } } },
+    { "keyword": "sheet", "target": { "type": "n8n-nodes-base.googleSheets", "name": "Google Sheets" } },
+    { "keyword": "mongodb", "target": { "type": "n8n-nodes-base.mongoDb", "name": "MongoDB", "defaults": { "parameters": { "operation": "insert" } } } },
+    { "keyword": "mysql", "target": { "type": "n8n-nodes-base.mySql", "name": "MySQL", "defaults": { "parameters": { "operation": "executeQuery" } } } },
+    { "keyword": "postgres", "target": { "type": "n8n-nodes-base.postgres", "name": "Postgres", "defaults": { "parameters": { "operation": "executeQuery" } } } },
+    { "keyword": "perplexity", "target": { "type": "@watzon/n8n-nodes-perplexity", "name": "Perplexity" } },
+    { "keyword": "aimlapi", "target": { "type": "n8n-nodes-aimlapi", "name": "AI/ML API" } },
+    { "keyword": "discord", "target": { "type": "n8n-nodes-base.discord", "name": "Discord" } },
+    { "keyword": "webhook", "target": { "type": "n8n-nodes-base.webhook", "name": "Webhook" } },
+    { "keyword": "schedule", "target": { "type": "n8n-nodes-base.scheduleTrigger", "name": "Schedule Trigger" } }
+  ]
+}
+

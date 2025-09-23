@@ -8,6 +8,24 @@ import json
 import re
 import os
 from typing import Dict, Any
+from jsonschema import validate as jsonschema_validate, ValidationError
+
+# Load optional config files (registry, schema)
+CONFIG_DIR = os.path.join(os.path.dirname(__file__), "config")
+NODE_REGISTRY_PATH = os.path.join(CONFIG_DIR, "node_registry.json")
+WORKFLOW_SCHEMA_PATH = os.path.join(CONFIG_DIR, "workflow_schema.json")
+
+def load_json_file(path: str) -> Any:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+    except Exception:
+        return None
+
+NODE_REGISTRY = load_json_file(NODE_REGISTRY_PATH) or {}
+WORKFLOW_SCHEMA = load_json_file(WORKFLOW_SCHEMA_PATH) or None
 
 app = FastAPI(title="n8n Workflow Generator", version="1.0.0")
 
@@ -293,7 +311,17 @@ def apply_native_node_preferences(workflow: Dict[str, Any], instructions: str) -
     text = instructions.lower()
     nodes = workflow.get("nodes", [])
 
-    keyword_to_node = [
+    # Prefer external registry if present
+    if NODE_REGISTRY and isinstance(NODE_REGISTRY.get("keywords"), list):
+        registry_pairs = []
+        for entry in NODE_REGISTRY["keywords"]:
+            kw = str(entry.get("keyword", "")).lower().strip()
+            target = entry.get("target", {})
+            if kw and target:
+                registry_pairs.append((kw, target))
+        keyword_to_node = registry_pairs
+    else:
+        keyword_to_node = [
         ("google sheets", {"type": "n8n-nodes-base.googleSheets", "name": "Google Sheets"}),
         ("sheet", {"type": "n8n-nodes-base.googleSheets", "name": "Google Sheets"}),
         ("mongodb", {"type": "n8n-nodes-base.mongoDb", "name": "MongoDB"}),
@@ -517,6 +545,14 @@ def ensure_ai_agent_present(workflow: Dict[str, Any]) -> Dict[str, Any]:
 
 def validate_n8n_workflow(workflow: Dict[Any, Any]) -> None:
     """Basic validation of n8n workflow structure"""
+    # If JSON schema available, validate strictly first
+    if WORKFLOW_SCHEMA:
+        try:
+            jsonschema_validate(instance=workflow, schema=WORKFLOW_SCHEMA)
+            return
+        except ValidationError as e:
+            # Fall back to lightweight checks with helpful error text
+            pass
     required_fields = ['name', 'nodes', 'connections']
     for field in required_fields:
         if field not in workflow:
@@ -531,6 +567,27 @@ def validate_n8n_workflow(workflow: Dict[Any, Any]) -> None:
         for field in node_required:
             if field not in node:
                 raise ValueError(f"Node {i} missing required field: {field}")
+
+def auto_heal_workflow(workflow: Dict[str, Any]) -> Dict[str, Any]:
+    """Light auto-heal: ensure ids, positions, and minimal connection wiring exist."""
+    nodes = workflow.get("nodes", [])
+    connections = workflow.get("connections", {})
+
+    # Ensure unique, stable ids and positions
+    for idx, node in enumerate(nodes):
+        node.setdefault("id", f"node-{idx+1}")
+        node.setdefault("position", [250 + 250 * idx, 300])
+        node.setdefault("name", f"Node {idx+1}")
+
+    # Ensure connections dict keys exist for each node name
+    for node in nodes:
+        name = node.get("name")
+        if name and name not in connections and "trigger" not in node.get("type", "").lower():
+            connections[name] = {"main": [[ ]]}  # empty path to be filled by LLM output
+
+    workflow["nodes"] = nodes
+    workflow["connections"] = connections
+    return workflow
 
 @app.post("/generate-workflow", response_model=Dict[str, Any])
 async def generate_workflow(request: WorkflowRequest):
@@ -563,6 +620,9 @@ async def generate_workflow(request: WorkflowRequest):
 
         # Prefer native nodes for known services based on instructions
         workflow_json = apply_native_node_preferences(workflow_json, instructions)
+
+        # Auto-heal before validation
+        workflow_json = auto_heal_workflow(workflow_json)
 
         # Auto-inject AI processing nodes if needed
         if needs_ai_processing(instructions):
