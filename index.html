@@ -313,7 +313,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:8000';
+        // Use relative URL to avoid CORS issues
+        const API_BASE_URL = ''; // This will make requests to the same origin
         let currentWorkflowJSON = null;
 
         function fillExample(element) {
