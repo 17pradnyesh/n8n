@@ -268,12 +268,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><span style="font-size: 1.5rem;">⚙️</span> n8n Workflow Generator</h1>
+            <h1><span style="font-size: 1.5rem;"></span> n8n Workflow Generator</h1>
             <p>Generate n8n workflows from natural language instructions</p>
         </div>
 
         <div class="examples">
-            <h3>💡 Example Instructions (click to use):</h3>
+            <h3> Example Instructions (click to use):</h3>
             <ul>
                 <li onclick="fillExample(this)">Create a workflow that fetches daily weather data and emails me at 8 AM</li>
                 <li onclick="fillExample(this)">Make a workflow that monitors a website for changes and sends a Slack notification</li>
@@ -283,7 +283,7 @@
         </div>
 
         <div class="input-section">
-            <label for="instructions" class="input-label">🎯 Describe your workflow:</label>
+            <label for="instructions" class="input-label"> Describe your workflow:</label>
             <textarea 
                 id="instructions" 
                 class="instruction-input" 
@@ -292,7 +292,7 @@
         </div>
 
         <button onclick="generateWorkflow()" class="generate-btn" id="generateBtn">
-            ✨ Generate n8n Workflow
+             Generate n8n Workflow
         </button>
 
         <div class="loading" id="loading">
@@ -302,10 +302,10 @@
 
         <div class="result-section" id="resultSection">
             <div class="result-header">
-                <span class="result-title">📋 Generated Workflow JSON</span>
+                <span class="result-title"> Generated Workflow JSON</span>
                 <div style="display:flex; gap:8px; align-items:center;">
-                    <button onclick="copyJSON()" class="copy-btn" id="copyBtn">📋 Copy</button>
-                    <button onclick="downloadJSON()" class="download-btn">📥 Download</button>
+                    <button onclick="copyJSON()" class="copy-btn" id="copyBtn"> Copy</button>
+                    <button onclick="downloadJSON()" class="download-btn"> Download</button>
                 </div>
             </div>
             <pre class="json-output" id="jsonOutput"></pre>
@@ -341,7 +341,7 @@
             document.querySelector('.error')?.remove();
 
             try {
-                const response = await fetch(`https://n8nservice-com.onrender.com/generate-workflow`, {
+                const response = await fetch(`http://localhost:8000/generate-workflow`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -401,17 +401,17 @@
             const btn = document.getElementById('copyBtn');
             if (!currentWorkflowJSON) {
                 btn.textContent = 'No JSON';
-                setTimeout(() => btn.textContent = '📋 Copy', 1200);
+                setTimeout(() => btn.textContent = ' Copy', 1200);
                 return;
             }
             const jsonString = JSON.stringify(currentWorkflowJSON, null, 2);
             try {
                 await navigator.clipboard.writeText(jsonString);
-                btn.textContent = '✅ Copied';
+                btn.textContent = ' Copied';
             } catch (e) {
                 btn.textContent = '✖ Failed';
             } finally {
-                setTimeout(() => btn.textContent = '📋 Copy', 1200);
+                setTimeout(() => btn.textContent = ' Copy', 1200);
             }
         }
 
