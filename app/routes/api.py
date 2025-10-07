@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import Dict, Any
 import os
 
-from app.repositories import workflow_repository
+from app.repositories import generate_workflow_from_instructions
 from app.config import INDEX_PATH
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def generate_workflow_endpoint(request: WorkflowRequest):
     if not instructions:
         raise HTTPException(status_code=400, detail="Instructions cannot be empty")
     
-    return workflow_repository.generate_workflow_from_instructions(instructions)
+    return generate_workflow_from_instructions(instructions)
 
 @router.get("/")
 async def serve_index():
