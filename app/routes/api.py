@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import Dict, Any
 import os
 
-from app.repositories import generate_workflow_from_instructions
+from app.repositories import generate_workflow_from_instructions, workflow_generator
 from app.config import INDEX_PATH
 
 router = APIRouter()
@@ -38,6 +38,6 @@ async def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "gemini_initialized": workflow_repository.model is not None,
-        "model_in_use": workflow_repository.current_model_name,
+        "gemini_initialized": getattr(workflow_generator, 'model', None) is not None,
+        "model_in_use": getattr(workflow_generator, 'current_model_name', None),
     }

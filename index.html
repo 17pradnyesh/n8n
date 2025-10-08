@@ -212,6 +212,89 @@
             animation: fadeIn 0.5s ease-in-out;
         }
 
+        .result-header-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .result-card {
+            background: rgba(18,22,36,0.85);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .result-card .json-output {
+            min-height: 320px;
+            max-height: 400px;
+            overflow: auto;
+        }
+        .result-card .copy-btn, .result-card .download-btn, .result-card .collapse-btn {
+            margin-bottom: 0;
+        }
+        .result-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        @media (max-width: 920px) {
+            .result-header-row { flex-direction: column; gap: 0.5rem; }
+            .result-flex { flex-direction: column; gap: 1rem; }
+        }
+
+        /* Errorlog panel improvements */
+        .panel {
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.06);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-actions { display: flex; gap: 8px; align-items: center; }
+
+        .collapse-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive: stack panels on narrow screens */
+        @media (max-width: 920px) {
+            .container { max-width: 100%; padding: 1rem; }
+            .result-grid { grid-template-columns: 1fr; }
+        }
+
         .result-header {
             display: flex;
             justify-content: space-between;
@@ -271,6 +354,19 @@
             <h1><span style="font-size: 1.5rem;"></span> n8n Workflow Generator</h1>
             <p>Generate n8n workflows from natural language instructions</p>
         </div>
+        <div class="help-box" style="margin-top:2rem; background:rgba(59,130,246,0.08); border:1px solid var(--border-color); border-radius:14px; padding:1.5rem; color:var(--text-primary);">
+            <h3 style="margin-top:0; font-size:1.1rem; font-weight:700; color:var(--accent-end);">How to set up error handling in n8n</h3>
+            <ol style="margin:1rem 0 0 1.5rem;">
+                <li>Import both the generated workflow and the <b>Default ErrorLog</b> workflow into n8n.</li>
+                <li>Open your main workflow in the n8n editor.</li>
+                <li>Click the <b>Settings</b> (three dots) in the top right, then select <b>Settings</b>.</li>
+                <li>In the <b>Error Workflow</b> dropdown, select your errorlog workflow (usually named <code>errorlog</code>).</li>
+                <li>Click <b>Save</b> to apply the changes.</li>
+            </ol>
+            <div style="margin-top:1rem; color:var(--text-secondary); font-size:0.95rem;">
+                This ensures that any errors in your main workflow will trigger the errorlog workflow for notifications or custom handling.
+            </div>
+        </div>
 
         <div class="examples">
             <h3> Example Instructions (click to use):</h3>
@@ -301,14 +397,27 @@
         </div>
 
         <div class="result-section" id="resultSection">
-            <div class="result-header">
-                <span class="result-title"> Generated Workflow JSON</span>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <button onclick="copyJSON()" class="copy-btn" id="copyBtn"> Copy</button>
-                    <button onclick="downloadJSON()" class="download-btn"> Download</button>
+            <div class="result-header-row" style="display: flex; gap: 1.5rem; margin-bottom: 1rem;">
+                <div class="result-title" style="flex:1; text-align:center; font-size:1.05rem; font-weight:700;">Generated Workflow JSON</div>
+                <div class="result-title" style="flex:1; text-align:center; font-size:1.05rem; font-weight:700;">Default ErrorLog JSON <span class="badge">default</span></div>
+            </div>
+            <div class="result-flex" style="display: flex; gap: 1.5rem;">
+                <div class="result-card" style="flex:1; background:rgba(18,22,36,0.85); border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,0.10); padding:1rem; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:0.5rem;">
+                        <button onclick="copyWorkflowJSON()" class="copy-btn" id="copyWorkflowBtn">Copy</button>
+                        <button onclick="downloadWorkflowJSON()" class="download-btn">Download</button>
+                    </div>
+                    <pre class="json-output" id="jsonOutput" style="flex:1; min-height:320px; max-height:400px; overflow:auto;"></pre>
+                </div>
+                <div class="result-card" style="flex:1; background:rgba(18,22,36,0.85); border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,0.10); padding:1rem; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:0.5rem;">
+                        <button onclick="copyErrorlogJSON()" class="copy-btn" id="copyErrorlogBtn">Copy</button>
+                        <button onclick="downloadErrorlogJSON()" class="download-btn">Download</button>
+                        <button class="collapse-btn" id="toggleErrorlogBtn" onclick="toggleErrorlog()">Collapse</button>
+                    </div>
+                    <pre class="json-output" id="errorlogOutput" style="flex:1; min-height:320px; max-height:400px; overflow:auto;"></pre>
                 </div>
             </div>
-            <pre class="json-output" id="jsonOutput"></pre>
         </div>
     </div>
 
@@ -356,11 +465,15 @@
                     throw new Error(errorData.detail || 'Failed to generate workflow');
                 }
 
-                const workflowData = await response.json();
+                const data = await response.json();
+                // Expecting { workflow: {...}, errorlog: {...} }
+                const workflowData = data.workflow || data;
+                const errorlogData = data.errorlog || null;
                 currentWorkflowJSON = workflowData;
 
-                // Display result
-                jsonOutput.textContent = JSON.stringify(workflowData, null, 2);
+                // Display result in two panels
+                document.getElementById('jsonOutput').textContent = JSON.stringify(workflowData, null, 2);
+                document.getElementById('errorlogOutput').textContent = errorlogData ? JSON.stringify(errorlogData, null, 2) : 'No errorlog available';
                 resultSection.style.display = 'block';
 
             } catch (error) {
@@ -378,16 +491,14 @@
 
         fetch('/openapi.json').catch(() => {});
 
-        function downloadJSON() {
+        function downloadWorkflowJSON() {
             if (!currentWorkflowJSON) {
                 alert('No workflow to download');
                 return;
             }
-
             const jsonString = JSON.stringify(currentWorkflowJSON, null, 2);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
             a.download = `${currentWorkflowJSON.name || 'workflow'}.json`;
@@ -397,8 +508,26 @@
             URL.revokeObjectURL(url);
         }
 
-        async function copyJSON() {
-            const btn = document.getElementById('copyBtn');
+        function downloadErrorlogJSON() {
+            const el = document.getElementById('errorlogOutput');
+            if (!el || !el.textContent || el.textContent === 'No errorlog available') {
+                alert('No errorlog to download');
+                return;
+            }
+            const jsonString = el.textContent;
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `errorlog.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function copyWorkflowJSON() {
+            const btn = document.getElementById('copyWorkflowBtn');
             if (!currentWorkflowJSON) {
                 btn.textContent = 'No JSON';
                 setTimeout(() => btn.textContent = ' Copy', 1200);
@@ -412,6 +541,37 @@
                 btn.textContent = '✖ Failed';
             } finally {
                 setTimeout(() => btn.textContent = ' Copy', 1200);
+            }
+        }
+
+        async function copyErrorlogJSON() {
+            const btn = document.getElementById('copyErrorlogBtn');
+            const el = document.getElementById('errorlogOutput');
+            if (!el || !el.textContent || el.textContent === 'No errorlog available') {
+                btn.textContent = 'No JSON';
+                setTimeout(() => btn.textContent = ' Copy', 1200);
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(el.textContent);
+                btn.textContent = ' Copied';
+            } catch (e) {
+                btn.textContent = '✖ Failed';
+            } finally {
+                setTimeout(() => btn.textContent = ' Copy', 1200);
+            }
+        }
+
+        function toggleErrorlog() {
+            const panel = document.getElementById('errorlogOutput');
+            const btn = document.getElementById('toggleErrorlogBtn');
+            if (!panel) return;
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                btn.textContent = 'Collapse';
+            } else {
+                panel.style.display = 'none';
+                btn.textContent = 'Expand';
             }
         }
 

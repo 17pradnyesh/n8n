@@ -39,3 +39,8 @@ def load_json_file(path: str) -> Optional[Any]:
 # --- LOADED SCHEMAS ---
 NODE_REGISTRY = load_json_file(NODE_REGISTRY_PATH) or {}
 WORKFLOW_SCHEMA = load_json_file(WORKFLOW_SCHEMA_PATH)
+# --- DEFAULT ERROR LOG ---
+# Path to a standard error handling workflow JSON that should be attached to every generated workflow
+ERRORLOG_PATH = os.path.join(CONFIG_DIR, "errorlog.json")
+# Try to load errorlog; if missing, keep None
+ERRORLOG = load_json_file(ERRORLOG_PATH)

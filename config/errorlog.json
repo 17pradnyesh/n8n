@@ -1,0 +1,66 @@
+{
+  "name": "errorlog",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "88d6d4dc-8972-4968-a937-ae87cfdb1cdf",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "pradnyesh.k@somaiya.edu",
+        "subject": "Error found",
+        "emailType": "text",
+        "message": "={{ $json.execution.error.message }}\nerror occured with this error :{{ $json.execution.lastNodeExecuted }}\ntime:{{ $now.format('yyyy-MM-dd') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "98729c2a-c129-43ab-b9bd-cf5186495e75",
+      "name": "Send a message",
+      "webhookId": "d1e3b62c-f7a4-4fdf-8c30-1ef2c412d4be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UNQU09V6PdRh2dh3",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4b3698b5-cc8e-4b66-8e35-9a0e2080094d",
+  "meta": {
+    "instanceId": "0cb36dab2b5ac219e0537b4b081d687972b5c24850cbef50f9b0fdf3b2c89c0d"
+  },
+  "id": "Iv19MENY0uterBFC",
+  "tags": []
+}

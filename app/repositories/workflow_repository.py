@@ -13,6 +13,7 @@ from app.config import (
     GEMINI_MODEL_NAME,
     FALLBACK_MODELS,
     WORKFLOW_SCHEMA,
+    ERRORLOG,
 )
 
 # Configure logging
@@ -121,7 +122,11 @@ class WorkflowGenerator:
             workflow = self.auto_heal_workflow(workflow)
 
             logger.info(f"Workflow generated successfully: {workflow.get('name', 'Untitled')}")
-            return workflow
+            # Return both generated workflow and the standard errorlog JSON
+            return {
+                "workflow": workflow,
+                "errorlog": ERRORLOG or {}
+            }
             
         except Exception as e:
             if isinstance(e, HTTPException):
